@@ -1,26 +1,55 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { processResponse } from 'src/shared/common';
+import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { FilterCategoryDto } from './dto/filter-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Category } from './entities/category.entity';
 
 @Injectable()
 export class CategoryService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(@InjectRepository(Category) private categoryRepository: Repository<Category>) {}
+
+  async create(createCategoryDto: CreateCategoryDto) {
+    const createCategory = await this.categoryRepository.save(createCategoryDto);
+    return processResponse(true, createCategory);
   }
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll(query: FilterCategoryDto) {
+    const { limit = 10, skip = 0 } = query;
+
+    const categoryList: CreateCategoryDto[] = await this.categoryRepository.find({
+      take: limit,
+      skip: skip,
+    });
+
+    const data = {
+      products: categoryList,
+      meta: {
+        total: categoryList.length,
+        limit,
+        skip,
+      },
+    };
+    return processResponse(true, data);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: number) {
+    const category = await this.categoryRepository.findOne({
+      where: { categoryId: id },
+      select: ['categoryId', 'name']
+    });
+    return processResponse(true, category);
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    await this.categoryRepository.update({ categoryId: id }, updateCategoryDto);
+    return processResponse(true);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    await this.categoryRepository.delete({ categoryId: id });
+    return processResponse(true);
   }
 }

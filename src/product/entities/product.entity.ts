@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-@Entity()
+@Entity() 
 export class Product {
   @PrimaryGeneratedColumn()
   productId: number;
@@ -26,6 +26,9 @@ export class Product {
 
   @Column({ nullable: true })
   discount: number;
+
+  @Column()
+  image: string;
 
   @ManyToOne(() => Category, (category) => category.productIds)
   category: Category;
