@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { CashierService } from './cashier.service';
 import { CreateCashierDto } from './dto/create-cashier.dto';
+import { FilterCashierDto } from './dto/filter-cashier.dto';
 import { UpdateCashierDto } from './dto/update-cashier.dto';
 
-@Controller('cashier')
+@ApiTags('Cashiers')
+@Controller('cashiers')
 export class CashierController {
   constructor(private readonly cashierService: CashierService) {}
 
@@ -13,8 +16,8 @@ export class CashierController {
   }
 
   @Get()
-  findAll() {
-    return this.cashierService.findAll();
+  findAll(@Query() query: FilterCashierDto) {
+    return this.cashierService.findAll(query);
   }
 
   @Get(':id')
@@ -22,7 +25,7 @@ export class CashierController {
     return this.cashierService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateCashierDto: UpdateCashierDto) {
     return this.cashierService.update(+id, updateCashierDto);
   }

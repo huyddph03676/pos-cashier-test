@@ -5,18 +5,18 @@ export class FilterProductDto {
   @IsNumberString()
   @IsOptional()
   @Type(() => Number)
-  limit: number;
+  limit?: number;
 
   @IsNumberString()
   @IsOptional()
   @Type(() => Number)
-  skip: number;
+  skip?: number;
 
   @IsNumberString()
   @IsOptional()
   @Type(() => Number)
-  categoryId: number;
+  categoryId?: number;
 
   @IsOptional()
-  q: string;
+  q?: string;
 }

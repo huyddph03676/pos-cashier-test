@@ -1,26 +1,60 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { processResponse } from 'src/shared/common';
+import { Repository } from 'typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { FilterPaymentDto } from './dto/filter-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { Payment } from './entities/payment.entity';
 
 @Injectable()
 export class PaymentService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+  constructor(@InjectRepository(Payment) private paymentRepository: Repository<Payment>) {}
+
+  async create(createPaymentDto: CreatePaymentDto) {
+    const createCategory = await this.paymentRepository.save(createPaymentDto);
+    return processResponse(true, createCategory);
   }
 
-  findAll() {
-    return `This action returns all payment`;
+  async findAll(query: FilterPaymentDto) {
+    const { limit = 10, skip = 0, subtotal } = query;
+
+    if (subtotal) {
+      // Do something
+    }
+
+    const paymentList: CreatePaymentDto[] = await this.paymentRepository.find({
+      select: ['paymentId', 'name', 'type', 'logo'],
+      take: limit,
+      skip: skip,
+    });
+
+    const data = {
+      payments: paymentList,
+      meta: {
+        total: paymentList.length,
+        limit,
+        skip,
+      },
+    };
+    return processResponse(true, data);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
+  async findOne(id: number) {
+    const payment = await this.paymentRepository.findOne({
+      where: { paymentId: id },
+      select: ['paymentId', 'name', 'type', 'logo']
+    });
+    return processResponse(true, payment);
   }
 
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
+  async update(id: number, updatePaymentDto: UpdatePaymentDto) {
+    await this.paymentRepository.update({ paymentId: id }, updatePaymentDto);
+    return processResponse(true);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  async remove(id: number) {
+    await this.paymentRepository.delete({ paymentId: id });
+    return processResponse(true);
   }
 }

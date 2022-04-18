@@ -1,26 +1,56 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { processResponse } from 'src/shared/common';
+import { Repository } from 'typeorm';
 import { CreateCashierDto } from './dto/create-cashier.dto';
+import { FilterCashierDto } from './dto/filter-cashier.dto';
 import { UpdateCashierDto } from './dto/update-cashier.dto';
+import { Cashier } from './entities/cashier.entity';
 
 @Injectable()
 export class CashierService {
-  create(createCashierDto: CreateCashierDto) {
-    return 'This action adds a new cashier';
+  constructor(@InjectRepository(Cashier) private cashierRepository: Repository<Cashier>) {}
+
+  async create(createCashierDto: CreateCashierDto) {
+    const createCategory = await this.cashierRepository.save(createCashierDto);
+    return processResponse(true, createCategory);
   }
 
-  findAll() {
-    return `This action returns all cashier`;
+  async findAll(query: FilterCashierDto) {
+    const { limit = 10, skip = 0 } = query;
+
+    const cashierList: CreateCashierDto[] = await this.cashierRepository.find({
+      select: ['cashierId', 'name'],
+      take: limit,
+      skip: skip,
+    });
+
+    const data = {
+      cashiers: cashierList,
+      meta: {
+        total: cashierList.length,
+        limit,
+        skip,
+      },
+    };
+    return processResponse(true, data);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cashier`;
+  async findOne(id: number) {
+    const cashier = await this.cashierRepository.findOne({
+      where: { cashierId: id },
+      select: ['cashierId', 'name']
+    });
+    return processResponse(true, cashier);
   }
 
-  update(id: number, updateCashierDto: UpdateCashierDto) {
-    return `This action updates a #${id} cashier`;
+  async update(id: number, updateCashierDto: UpdateCashierDto) {
+    await this.cashierRepository.update({ cashierId: id }, updateCashierDto);
+    return processResponse(true);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cashier`;
+  async remove(id: number) {
+    await this.cashierRepository.delete({ cashierId: id });
+    return processResponse(true);
   }
 }

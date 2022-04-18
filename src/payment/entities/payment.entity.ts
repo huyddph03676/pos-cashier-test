@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { PAYMENT_TYPE } from '../enum/payment.enum';
 
 @Entity()
 export class Payment {
@@ -17,7 +18,7 @@ export class Payment {
   name: string;
 
   @Column()
-  type: string;
+  type: PAYMENT_TYPE;
 
   @Column({ nullable: true })
   logo: string;

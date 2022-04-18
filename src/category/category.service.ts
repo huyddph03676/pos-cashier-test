@@ -25,7 +25,7 @@ export class CategoryService {
     });
 
     const data = {
-      products: categoryList,
+      categories: categoryList,
       meta: {
         total: categoryList.length,
         limit,
