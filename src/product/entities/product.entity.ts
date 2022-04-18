@@ -1,9 +1,11 @@
 import { Category } from 'src/category/entities/category.entity';
+import { SubOrder } from 'src/order/entities/sub-order.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
@@ -35,6 +37,9 @@ export class Product {
 
   @Column()
   categoryId: number;
+
+  @OneToMany(() => SubOrder, suborder => suborder.product)
+  suborderIds: SubOrder[];
 
   @CreateDateColumn()
   created_at: Date;

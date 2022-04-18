@@ -5,9 +5,11 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
+import { SubOrder } from './sub-order.entity';
 
 @Entity()
 export class Order {
@@ -37,6 +39,9 @@ export class Order {
 
   @Column()
   paymentId: number;
+
+  @OneToMany(() => SubOrder, (suborder) => suborder.order)
+  suborderIds: SubOrder[];
 
   @CreateDateColumn()
   created_at: Date;
