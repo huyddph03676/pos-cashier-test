@@ -1,16 +1,19 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CashierModule } from './cashier/cashier.module';
-import { LoginModule } from './login/login.module';
-import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
-import { PaymentModule } from './payment/payment.module';
-import { OrderModule } from './order/order.module';
-import { ReportModule } from './report/report.module';
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import ormConfig from './config/orm.config';
+import { ErrorsInterceptor } from './interceptor/errors.interceptor';
+import { TransformInterceptor } from './interceptor/transform.interceptor';
+import { LoginModule } from './login/login.module';
+import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
+import { ProductModule } from './product/product.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -29,6 +32,16 @@ import ormConfig from './config/orm.config';
     ReportModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ErrorsInterceptor,
+    },
+    AppService,
+  ],
 })
 export class AppModule {}

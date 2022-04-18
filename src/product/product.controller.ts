@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FilterProductDto } from './dto/filter-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -16,22 +17,24 @@ export class ProductController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll(@Query() query: FilterProductDto) {
     return this.productService.findAll(query);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
+  @Get(':productId')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('productId', ParseIntPipe) productId: number) {
+    return this.productService.findOne(+productId);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  @Put(':productId')
+  update(@Param('productId', ParseIntPipe) productId: number, @Body() updateProductDto: UpdateProductDto) {
+    return this.productService.update(+productId, updateProductDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
+  @Delete(':productId')
+  remove(@Param('productId', ParseIntPipe) productId: number) {
+    return this.productService.remove(+productId);
   }
 }

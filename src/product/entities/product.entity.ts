@@ -7,9 +7,9 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
-@Entity() 
+@Entity()
 export class Product {
   @PrimaryGeneratedColumn()
   productId: number;
@@ -38,12 +38,12 @@ export class Product {
   @Column()
   categoryId: number;
 
-  @OneToMany(() => SubOrder, suborder => suborder.product)
+  @OneToMany(() => SubOrder, (suborder) => suborder.product)
   suborderIds: SubOrder[];
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 }

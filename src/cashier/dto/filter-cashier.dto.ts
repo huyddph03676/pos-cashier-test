@@ -1,4 +1,12 @@
-import { PickType } from "@nestjs/swagger";
-import { FilterProductDto } from "src/product/dto/filter-product.dto";
+import { Type } from 'class-transformer';
+import { IsNumber } from 'class-validator';
 
-export class FilterCashierDto extends PickType(FilterProductDto, ['limit', 'skip'] as const) {}
+export class FilterCashierDto {
+  @Type(() => Number)
+  @IsNumber()
+  limit?: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  skip?: number;
+}

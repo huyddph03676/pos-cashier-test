@@ -1,12 +1,5 @@
 import { Order } from 'src/order/entities/order.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { PAYMENT_TYPE } from '../enum/payment.enum';
 
 @Entity()
@@ -27,8 +20,8 @@ export class Payment {
   orderIds: Order[];
 
   @CreateDateColumn()
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  updatedAt: Date;
 }

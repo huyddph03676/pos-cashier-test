@@ -1,5 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { LocalAuthGuard } from 'src/auth/guard/local-auth.guard';
+import RequestWithUser from 'src/auth/interface/requestWithUser.interface';
 import { CashierService } from './cashier.service';
 import { CreateCashierDto } from './dto/create-cashier.dto';
 import { FilterCashierDto } from './dto/filter-cashier.dto';
@@ -15,23 +17,35 @@ export class CashierController {
     return this.cashierService.create(createCashierDto);
   }
 
+  @UseGuards(LocalAuthGuard)
+  @Post(':cashierId/login')
+  async login(@Req() request: RequestWithUser) {
+    const token = this.cashierService.getToken(request.user);
+    return { token };
+  }
+
   @Get()
   findAll(@Query() query: FilterCashierDto) {
     return this.cashierService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cashierService.findOne(+id);
+  @Get(':cashierId')
+  findOne(@Param('cashierId', ParseIntPipe) cashierId: number) {
+    return this.cashierService.findOne(cashierId);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateCashierDto: UpdateCashierDto) {
-    return this.cashierService.update(+id, updateCashierDto);
+  @Get(':cashierId/passcode')
+  findPasscode(@Param('cashierId', ParseIntPipe) cashierId: number) {
+    return this.cashierService.findPasscodeById(cashierId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cashierService.remove(+id);
+  @Put(':cashierId')
+  update(@Param('cashierId', ParseIntPipe) cashierId: number, @Body() updateCashierDto: UpdateCashierDto) {
+    return this.cashierService.update(cashierId, updateCashierDto);
+  }
+
+  @Delete(':cashierId')
+  remove(@Param('cashierId', ParseIntPipe) cashierId: number) {
+    return this.cashierService.remove(cashierId);
   }
 }

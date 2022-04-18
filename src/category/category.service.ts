@@ -19,7 +19,8 @@ export class CategoryService {
   async findAll(query: FilterCategoryDto) {
     const { limit = 10, skip = 0 } = query;
 
-    const categoryList: CreateCategoryDto[] = await this.categoryRepository.find({
+    const [categoryList, total] = await this.categoryRepository.findAndCount({
+      select: ['categoryId', 'name'],
       take: limit,
       skip: skip,
     });
@@ -27,29 +28,27 @@ export class CategoryService {
     const data = {
       categories: categoryList,
       meta: {
-        total: categoryList.length,
+        total: total,
         limit,
         skip,
       },
     };
-    return processResponse(true, data);
+    return data;
   }
 
   async findOne(id: number) {
     const category = await this.categoryRepository.findOne({
       where: { categoryId: id },
-      select: ['categoryId', 'name']
+      select: ['categoryId', 'name'],
     });
-    return processResponse(true, category);
+    return category;
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     await this.categoryRepository.update({ categoryId: id }, updateCategoryDto);
-    return processResponse(true);
   }
 
   async remove(id: number) {
     await this.categoryRepository.delete({ categoryId: id });
-    return processResponse(true);
   }
 }

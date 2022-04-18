@@ -18,9 +18,9 @@ export class OrderService {
     const { limit = 10, skip = 0 } = query;
 
     const orderList: CreateOrderDto[] = await this.orderRepository.find({
-      select: ['orderId', 'cashierId', 'paymentId', 'totalPrice', 'totalPaid', 'totalReturn', 'receiptId', 'created_at'],
+      select: ['orderId', 'cashierId', 'paymentId', 'totalPrice', 'totalPaid', 'totalReturn', 'receiptId', 'createdAt'],
       take: limit,
-      skip: skip, 
+      skip: skip,
     });
 
     const data = {
@@ -37,5 +37,4 @@ export class OrderService {
   findOne(id: number) {
     return `This action returns a #${id} order`;
   }
-
 }

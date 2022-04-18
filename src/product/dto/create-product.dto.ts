@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsOptional()
@@ -36,8 +36,8 @@ export class CreateProductDto {
   categoryId: number;
 
   @IsOptional()
-  created_at: Date;
+  createdAt: Date;
 
   @IsOptional()
-  updated_at: Date;
+  updatedAt: Date;
 }
