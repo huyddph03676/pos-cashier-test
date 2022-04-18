@@ -8,9 +8,26 @@ import { CategoryModule } from './category/category.module';
 import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
 import { ReportModule } from './report/report.module';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import ormConfig from './config/orm.config';
 
 @Module({
-  imports: [CashierModule, LoginModule, ProductModule, CategoryModule, PaymentModule, OrderModule, ReportModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: ormConfig,
+    }),    
+    CashierModule,
+    LoginModule,
+    ProductModule,
+    CategoryModule,
+    PaymentModule,
+    OrderModule,
+    ReportModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
