@@ -19,7 +19,7 @@ import ormConfig from './config/orm.config';
     }),
     TypeOrmModule.forRootAsync({
       useFactory: ormConfig,
-    }),    
+    }),
     CashierModule,
     LoginModule,
     ProductModule,
