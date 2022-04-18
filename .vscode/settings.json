@@ -1,0 +1,7 @@
+{
+  "editor.codeActionsOnSave": {
+    "editor.action.indentationToSpaces": true,
+    "source.organizeImports": true,
+    "source.format": true
+  }
+}
