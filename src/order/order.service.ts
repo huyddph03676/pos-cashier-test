@@ -9,7 +9,7 @@ import { SubTotalDto } from './dto/subtotal.dto';
 import { Order } from './entities/order.entity';
 
 
-type SubOrderTotalEntity  = Product & {
+type SubOrderTotalEntity = Product & {
   qty: number,
   totalNormalPrice: number,
   totalFinalPrice: number
@@ -27,17 +27,16 @@ export class OrderService {
   }
 
   async createSubtotal(createSubOrderDto: SubTotalDto[]) {
-    const products : SubOrderTotalEntity[] = [];
+    const listFinal : SubOrderTotalEntity[] = [];
     let subtotal = 0;
 
     for (const item of createSubOrderDto) {
-      const productInfo = await this.productServices.findOne(item.productId);
+      const productInfo = await this.productServices.getDetailById(item.productId)
       if (productInfo) {
         if (productInfo.stock < item.qty) {
           throw new NotFoundException('Stock not enough');
         }
         const itemSubtotal = productInfo.price * item.qty;
-
         // TODO: handle discount, default = 0
         const discountPrice = 0 ;
 
@@ -49,13 +48,13 @@ export class OrderService {
           totalFinalPrice: itemSubtotal - discountPrice
         };
 
-        products.push(itemSubOrderTotalEntity);
+        listFinal.push(itemSubOrderTotalEntity);
       }
     }
-    
+
     return {
       subtotal,
-      products
+      products: listFinal
     };
   }
 
