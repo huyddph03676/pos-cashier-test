@@ -7,7 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  UpdateDateColumn
 } from 'typeorm';
 import { SubOrder } from './sub-order.entity';
 
@@ -16,22 +16,22 @@ export class Order {
   @PrimaryGeneratedColumn()
   orderId: number;
 
-  @Column()
+  @Column({ nullable: true })
   totalPrice: number;
 
   @Column()
   totalPaid: number;
 
-  @Column()
+  @Column({ nullable: true })
   totalReturn: number;
 
-  @Column()
+  @Column({ nullable: true })
   receiptId: string;
 
   @ManyToOne(() => Cashier, (cashiers) => cashiers.orderIds)
   cashier: Cashier;
 
-  @Column()
+  @Column({ nullable: true })
   cashierId: number;
 
   @ManyToOne(() => Payment, (payment) => payment.orderIds)

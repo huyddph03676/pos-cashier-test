@@ -2,16 +2,22 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs
 import { ApiTags } from '@nestjs/swagger';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
+import { SubTotalDto } from './dto/subtotal.dto';
 import { OrderService } from './order.service';
 
 @ApiTags('Orders')
-@Controller('order')
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.create(createOrderDto);
+  }
+
+  @Post('subtotal')
+  createSubtotal(@Body() createSubOrderDto: SubTotalDto[]) {
+    return this.orderService.createSubtotal(createSubOrderDto);
   }
 
   @Get()
