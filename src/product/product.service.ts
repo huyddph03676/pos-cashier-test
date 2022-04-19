@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { processResponse } from 'src/shared/common';
+import { Category } from 'src/category/entities/category.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { FilterProductDto } from './dto/filter-product.dto';
@@ -9,11 +9,13 @@ import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductService {
-  constructor(@InjectRepository(Product) private productRepository: Repository<Product>) {}
+  constructor(
+    @InjectRepository(Product) private productRepository: Repository<Product>,
+  ) {}
 
   async create(createProductDto: CreateProductDto) {
     const createProduct = await this.productRepository.save(createProductDto);
-    return processResponse(true, createProduct);
+    return createProduct;
   }
 
   async findAll(query: FilterProductDto) {
@@ -23,17 +25,19 @@ export class ProductService {
     if (q) {
       queryFilter['name'] = q;
     }
-    // if (categoryId) {
-    //   queryFilter['categoryId'] = categoryId;
-    // }
+    if (categoryId) {
+      queryFilter['categoryId'] = categoryId;
+    }
 
-    const [products, total] = await this.productRepository.findAndCount({
-      select: ['productId', 'sku', 'name', 'stock', 'price', 'image', 'discount'],
-      where: queryFilter,
-      take: limit,
-      skip: skip,
-      relations: ['category'],
-    });
+    const productsQuery = this.productRepository
+      .createQueryBuilder('product')
+      .where(queryFilter)
+      .select(['product.productId', 'product.sku', 'product.name', 'product.stock', 'product.image', 'product.discount', 'product.category'])
+      .leftJoinAndMapOne('product.category', Category, 'category', 'product.categoryId = category.categoryId')
+      .limit(limit)
+      .skip(skip);
+
+    const [products, total] = await productsQuery.getManyAndCount();
 
     const data = {
       products,
@@ -42,26 +46,18 @@ export class ProductService {
         limit,
         skip,
       },
-    }
-    return processResponse(true, data);
+    };
+    return data;
   }
 
   async findOne(productId: number) {
-    // const product = await this.productRepository.findOne({
-    //   where: { productId },
-    //   relations: ['category'],
-    // });
-    const product = this.productRepository.createQueryBuilder('product')
+    const product = await this.productRepository
+      .createQueryBuilder('product')
       .where({ productId })
-      .leftJoinAndSelect('product.category', 'category')
-      .select(['product.productId', 'product.sku', 'product.name', 'product.stock', 'product.image', 'product.discount', 'category'])
-      .getOne()
-      // .leftJoinAndMapOne('product.categoryId', Category, 'category', 'product.categoryId = category.categoryId')
-      // .leftJoin(Category, 'category', 'product.categoryId = category.categoryId')
-      // .addSelect("category.name AS categoryName" )
+      .select(['product.productId', 'product.sku', 'product.name', 'product.stock', 'product.image', 'product.discount', 'product.category'])
+      .leftJoinAndMapOne('product.category', Category, 'category', 'product.categoryId = category.categoryId')
+      .getOne();
 
-    // console.log("productQuery.", productQuery.getQueryAndParameters())
-      // const product = await productQuery.getOne()
     if (!product) throw new NotFoundException('Product not found');
 
     return product;

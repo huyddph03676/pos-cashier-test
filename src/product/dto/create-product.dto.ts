@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { Category } from 'src/category/entities/category.entity';
 
 export class CreateProductDto {
   @IsOptional()
@@ -32,8 +31,9 @@ export class CreateProductDto {
   @IsString()
   image: string;
 
-
-  category: Category;
+  @ApiProperty()
+  @IsNumber()
+  categoryId: number;
 
   @IsOptional()
   createdAt: Date;

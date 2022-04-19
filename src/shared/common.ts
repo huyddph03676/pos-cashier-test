@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsNumberString, IsOptional } from "class-validator";
+import { IsNumber, IsOptional } from "class-validator";
 
 export function processResponse(status: boolean, data = null) {
   const response = {
@@ -11,12 +11,12 @@ export function processResponse(status: boolean, data = null) {
 };
 
 export class FilterCommonDto {
-  @IsNumberString()
+  @IsNumber()
   @IsOptional()
   @Type(() => Number)
   limit?: number;
 
-  @IsNumberString()
+  @IsNumber()
   @IsOptional()
   @Type(() => Number)
   skip?: number;
