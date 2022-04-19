@@ -7,7 +7,7 @@ import { Cashier } from 'src/cashier/entities/cashier.entity';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private cashierService: CashierService) {
-    super({ usernameField: 'passcode', passwordField: null, passReqToCallback: true });
+    super({ usernameField: 'passcode', passwordField: 'passcode', passReqToCallback: true });
   }
 
   async validate(req: any, passcode: string): Promise<Cashier> {
