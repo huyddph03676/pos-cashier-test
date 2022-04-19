@@ -9,9 +9,7 @@ import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductService {
-  constructor(
-    @InjectRepository(Product) private productRepository: Repository<Product>,
-  ) {}
+  constructor(@InjectRepository(Product) private productRepository: Repository<Product>) {}
 
   async create(createProductDto: CreateProductDto) {
     const createProduct = await this.productRepository.save(createProductDto);
@@ -29,15 +27,19 @@ export class ProductService {
       queryFilter['categoryId'] = categoryId;
     }
 
-    const productsQuery = this.productRepository
-      .createQueryBuilder('product')
-      .where(queryFilter)
-      .select(['product.productId', 'product.sku', 'product.name', 'product.stock', 'product.image', 'product.discount', 'product.category'])
-      .leftJoinAndMapOne('product.category', Category, 'category', 'product.categoryId = category.categoryId')
-      .limit(limit)
-      .skip(skip);
+    // const productsQuery = this.productRepository
+    // .createQueryBuilder('product')
+    // .where(queryFilter)
+    // .select(['product.productId', 'product.sku', 'product.name', 'product.stock', 'product.image', 'product.discount', 'product.category'])
+    // .leftJoinAndMapOne('product.category', Category, 'category', 'product.categoryId = category.categoryId')
+    // .limit(limit)
+    // .skip(skip);
 
-    const [products, total] = await productsQuery.getManyAndCount();
+    const [products, total] = await this.productRepository.findAndCount({
+      where: queryFilter,
+      relations: ['category'],
+      select: ['productId', 'sku', 'name', 'stock', 'image'],
+    });
 
     const data = {
       products,
@@ -54,7 +56,15 @@ export class ProductService {
     const product = await this.productRepository
       .createQueryBuilder('product')
       .where({ productId })
-      .select(['product.productId', 'product.sku', 'product.name', 'product.stock', 'product.image', 'product.discount', 'product.category'])
+      .select([
+        'product.productId',
+        'product.sku',
+        'product.name',
+        'product.stock',
+        'product.image',
+        'product.discount',
+        'product.category',
+      ])
       .leftJoinAndMapOne('product.category', Category, 'category', 'product.categoryId = category.categoryId')
       .getOne();
 
