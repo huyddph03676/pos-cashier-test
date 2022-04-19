@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { processResponse } from 'src/shared/common';
 import { Repository } from 'typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FilterPaymentDto } from './dto/filter-payment.dto';
@@ -13,7 +12,7 @@ export class PaymentService {
 
   async create(createPaymentDto: CreatePaymentDto) {
     const createCategory = await this.paymentRepository.save(createPaymentDto);
-    return processResponse(true, createCategory);
+    return createCategory;
   }
 
   async findAll(query: FilterPaymentDto) {
@@ -23,38 +22,41 @@ export class PaymentService {
       // Do something
     }
 
-    const paymentList: CreatePaymentDto[] = await this.paymentRepository.find({
+    const [payments, total] = await this.paymentRepository.findAndCount({
       select: ['paymentId', 'name', 'type', 'logo'],
       take: limit,
       skip: skip,
     });
 
     const data = {
-      payments: paymentList,
+      payments,
       meta: {
-        total: paymentList.length,
+        total,
         limit,
         skip,
       },
     };
-    return processResponse(true, data);
+    return data;
   }
 
-  async findOne(id: number) {
+  async findOne(paymentId: number) {
     const payment = await this.paymentRepository.findOne({
-      where: { paymentId: id },
+      where: { paymentId },
       select: ['paymentId', 'name', 'type', 'logo']
     });
-    return processResponse(true, payment);
+
+    if (!payment) throw new NotFoundException('Payment not found');
+
+    return payment;
   }
 
-  async update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    await this.paymentRepository.update({ paymentId: id }, updatePaymentDto);
-    return processResponse(true);
+  async update(paymentId: number, updatePaymentDto: UpdatePaymentDto) {
+    await this.findOne(paymentId);
+    await this.paymentRepository.update({ paymentId }, updatePaymentDto);
   }
 
-  async remove(id: number) {
-    await this.paymentRepository.delete({ paymentId: id });
-    return processResponse(true);
+  async remove(paymentId: number) {
+    await this.findOne(paymentId);
+    await this.paymentRepository.delete({ paymentId });
   }
 }

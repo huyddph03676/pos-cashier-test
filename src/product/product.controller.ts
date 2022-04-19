@@ -25,16 +25,16 @@ export class ProductController {
   @Get(':productId')
   @UseGuards(JwtAuthGuard)
   async findOne(@Param('productId', ParseIntPipe) productId: number) {
-    return this.productService.findOne(+productId);
+    return this.productService.findOne(productId);
   }
 
   @Put(':productId')
   update(@Param('productId', ParseIntPipe) productId: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+productId, updateProductDto);
+    return this.productService.update(productId, updateProductDto);
   }
 
   @Delete(':productId')
   remove(@Param('productId', ParseIntPipe) productId: number) {
-    return this.productService.remove(+productId);
+    return this.productService.remove(productId);
   }
 }

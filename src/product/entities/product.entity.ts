@@ -7,7 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  UpdateDateColumn
 } from 'typeorm';
 @Entity()
 export class Product {
@@ -35,8 +35,6 @@ export class Product {
   @ManyToOne(() => Category, (category) => category.productIds)
   category: Category;
 
-  @Column()
-  categoryId: number;
 
   @OneToMany(() => SubOrder, (suborder) => suborder.product)
   suborderIds: SubOrder[];

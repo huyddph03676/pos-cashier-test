@@ -29,7 +29,7 @@ export class CashierService {
   async validate(cashierId, passcode) {
     const cashier = await this.cashierRepository.findOne({
       where: { cashierId, passcode },
-      select: ['passcode', 'cashierId', 'passcode'],
+      select: ['passcode', 'cashierId', 'name'],
     });
     return cashier;
   }
@@ -37,14 +37,14 @@ export class CashierService {
   async findAll(query: FilterCashierDto) {
     const { limit = 10, skip = 0 } = query;
 
-    const [cashierList, total] = await this.cashierRepository.findAndCount({
+    const [cashiers, total] = await this.cashierRepository.findAndCount({
       select: ['cashierId', 'name'],
       take: limit,
       skip: skip,
     });
 
     const data = {
-      cashiers: cashierList,
+      cashiers,
       meta: {
         total,
         limit,
@@ -54,9 +54,9 @@ export class CashierService {
     return data;
   }
 
-  async findOne(id: number) {
+  async findOne(cashierId: number) {
     const cashier = await this.cashierRepository.findOne({
-      where: { cashierId: id },
+      where: { cashierId },
       select: ['cashierId', 'name'],
     });
 
@@ -65,9 +65,9 @@ export class CashierService {
     return cashier;
   }
 
-  async findPasscodeById(id: number) {
+  async findPasscodeById(cashierId: number) {
     const cashier = await this.cashierRepository.findOne({
-      where: { cashierId: id },
+      where: { cashierId },
       select: ['passcode'],
     });
 
@@ -76,24 +76,15 @@ export class CashierService {
     return { passcode: cashier.passcode };
   }
 
-  async update(id: number, updateCashierDto: UpdateCashierDto) {
-    const cashier = await this.cashierRepository.findOne({
-      where: { cashierId: id },
-      select: ['cashierId', 'name'],
-    });
+  async update(cashierId: number, updateCashierDto: UpdateCashierDto) {
+    await this.findOne(cashierId);
 
-    if (!cashier) throw new NotFoundException('Cashier not found');
-    await this.cashierRepository.update({ cashierId: id }, updateCashierDto);
+    await this.cashierRepository.update({ cashierId }, updateCashierDto);
   }
 
-  async remove(id: number) {
-    const cashier = await this.cashierRepository.findOne({
-      where: { cashierId: id },
-      select: ['cashierId', 'name'],
-    });
+  async remove(cashierId: number) {
+    await this.findOne(cashierId);
 
-    if (!cashier) throw new NotFoundException('Cashier not found');
-
-    await this.cashierRepository.delete({ cashierId: id });
+    await this.cashierRepository.delete({ cashierId });
   }
 }

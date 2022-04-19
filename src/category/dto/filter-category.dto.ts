@@ -1,4 +1,4 @@
 import { PickType } from "@nestjs/swagger";
-import { FilterProductDto } from "src/product/dto/filter-product.dto";
+import { FilterCommonDto } from "src/shared/common";
 
-export class FilterCategoryDto extends PickType(FilterProductDto, ['limit', 'skip'] as const) {}
+export class FilterCategoryDto extends PickType(FilterCommonDto, ['limit', 'skip'] as const) {}

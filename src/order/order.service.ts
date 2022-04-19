@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { processResponse } from 'src/shared/common';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
@@ -17,21 +16,21 @@ export class OrderService {
   async findAll(query: FilterOrderDto) {
     const { limit = 10, skip = 0 } = query;
 
-    const orderList: CreateOrderDto[] = await this.orderRepository.find({
+    const [orders, total] = await this.orderRepository.findAndCount({
       select: ['orderId', 'cashierId', 'paymentId', 'totalPrice', 'totalPaid', 'totalReturn', 'receiptId', 'createdAt'],
       take: limit,
       skip: skip,
     });
 
     const data = {
-      orders: orderList,
+      orders,
       meta: {
-        total: orderList.length,
+        total,
         limit,
         skip,
       },
     };
-    return processResponse(true, data);
+    return data;
   }
 
   findOne(id: number) {

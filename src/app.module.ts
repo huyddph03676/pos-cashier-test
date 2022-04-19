@@ -9,7 +9,6 @@ import { CategoryModule } from './category/category.module';
 import ormConfig from './config/orm.config';
 import { ErrorsInterceptor } from './interceptor/errors.interceptor';
 import { TransformInterceptor } from './interceptor/transform.interceptor';
-import { LoginModule } from './login/login.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
 import { ProductModule } from './product/product.module';
@@ -24,7 +23,6 @@ import { ReportModule } from './report/report.module';
       useFactory: ormConfig,
     }),
     CashierModule,
-    LoginModule,
     ProductModule,
     CategoryModule,
     PaymentModule,

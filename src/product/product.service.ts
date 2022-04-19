@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { processResponse } from 'src/shared/common';
 import { Repository } from 'typeorm';
@@ -23,22 +23,22 @@ export class ProductService {
     if (q) {
       queryFilter['name'] = q;
     }
-    if (categoryId) {
-      queryFilter['categoryId'] = categoryId;
-    }
+    // if (categoryId) {
+    //   queryFilter['categoryId'] = categoryId;
+    // }
 
-    const productList: CreateProductDto[] = await this.productRepository.find({
-      select: ['productId', 'sku', 'name', 'stock', 'price', 'image', 'categoryId', 'discount'],
+    const [products, total] = await this.productRepository.findAndCount({
+      select: ['productId', 'sku', 'name', 'stock', 'price', 'image', 'discount'],
       where: queryFilter,
       take: limit,
       skip: skip,
-      relations: ['categoryId'],
+      relations: ['category'],
     });
 
     const data = {
-      products: productList,
+      products,
       meta: {
-        total: productList.length,
+        total,
         limit,
         skip,
       },
@@ -46,20 +46,34 @@ export class ProductService {
     return processResponse(true, data);
   }
 
-  async findOne(id: number) {
-    const product = await this.productRepository.findOne({
-      where: { productId: id },
-    });
-    return processResponse(true, product);
+  async findOne(productId: number) {
+    // const product = await this.productRepository.findOne({
+    //   where: { productId },
+    //   relations: ['category'],
+    // });
+    const product = this.productRepository.createQueryBuilder('product')
+      .where({ productId })
+      .leftJoinAndSelect('product.category', 'category')
+      .select(['product.productId', 'product.sku', 'product.name', 'product.stock', 'product.image', 'product.discount', 'category'])
+      .getOne()
+      // .leftJoinAndMapOne('product.categoryId', Category, 'category', 'product.categoryId = category.categoryId')
+      // .leftJoin(Category, 'category', 'product.categoryId = category.categoryId')
+      // .addSelect("category.name AS categoryName" )
+
+    // console.log("productQuery.", productQuery.getQueryAndParameters())
+      // const product = await productQuery.getOne()
+    if (!product) throw new NotFoundException('Product not found');
+
+    return product;
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    await this.productRepository.update({ productId: id }, updateProductDto);
-    return processResponse(true);
+  async update(productId: number, updateProductDto: UpdateProductDto) {
+    await this.findOne(productId);
+    await this.productRepository.update({ productId }, updateProductDto);
   }
 
-  async remove(id: number) {
-    await this.productRepository.delete({ productId: id });
-    return processResponse(true);
+  async remove(productId: number) {
+    await this.findOne(productId);
+    await this.productRepository.delete({ productId });
   }
 }

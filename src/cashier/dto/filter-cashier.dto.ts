@@ -1,12 +1,4 @@
-import { Type } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
+import { FilterCommonDto } from 'src/shared/common';
 
-export class FilterCashierDto {
-  @Type(() => Number)
-  @IsNumber()
-  limit?: number;
-
-  @Type(() => Number)
-  @IsNumber()
-  skip?: number;
-}
+export class FilterCashierDto extends PickType(FilterCommonDto, ['limit', 'skip'] as const) {}

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FilterPaymentDto } from './dto/filter-payment.dto';
@@ -20,18 +20,18 @@ export class PaymentController {
     return this.paymentService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentService.findOne(+id);
+  @Get(':paymentId')
+  findOne(@Param('paymentId', ParseIntPipe) paymentId: number) {
+    return this.paymentService.findOne(paymentId);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentService.update(+id, updatePaymentDto);
+  @Put(':paymentId')
+  update(@Param('paymentId', ParseIntPipe) paymentId: number, @Body() updatePaymentDto: UpdatePaymentDto) {
+    return this.paymentService.update(paymentId, updatePaymentDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(':paymentId')
+  remove(@Param('paymentId') id: string) {
     return this.paymentService.remove(+id);
   }
 }
