@@ -6,7 +6,7 @@ import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaymentService } from './payment.service';
 
 @ApiTags('Payments')
-@Controller('payment')
+@Controller('payments')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
