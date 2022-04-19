@@ -40,13 +40,14 @@ export class OrderService {
         // TODO: handle discount, default = 0
         const discountPrice = 0 ;
 
-        subtotal = subtotal + itemSubtotal;
         const itemSubOrderTotalEntity: SubOrderTotalEntity = {
           ...productInfo,
           qty: item.qty,
           totalNormalPrice: itemSubtotal,
           totalFinalPrice: itemSubtotal - discountPrice
         };
+
+        subtotal = subtotal + itemSubtotal - discountPrice;
 
         listFinal.push(itemSubOrderTotalEntity);
       }
