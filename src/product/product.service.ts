@@ -73,6 +73,17 @@ export class ProductService {
     return product;
   }
 
+  async getDetailById(productId: number) {
+   const product =await this.productRepository.findOne({
+     where: {
+       productId
+     }
+   })
+   if (!product) throw new NotFoundException('Product not found');
+
+   return product
+  }
+
   async update(productId: number, updateProductDto: UpdateProductDto) {
     await this.findOne(productId);
     await this.productRepository.update({ productId }, updateProductDto);
