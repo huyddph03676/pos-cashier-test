@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { CashierModule } from './cashier/cashier.module';
 import { CategoryModule } from './category/category.module';
 import ormConfig from './config/orm.config';
+import { DiscountModule } from './discount/discount.module';
 import { ErrorsInterceptor } from './interceptor/errors.interceptor';
 import { TransformInterceptor } from './interceptor/transform.interceptor';
 import { OrderModule } from './order/order.module';
@@ -28,6 +29,7 @@ import { ReportModule } from './report/report.module';
     PaymentModule,
     OrderModule,
     ReportModule,
+    DiscountModule,
   ],
   controllers: [AppController],
   providers: [

@@ -13,7 +13,7 @@ export class SubOrder {
   @Column()
   orderId: number;
 
-  @ManyToOne(() => Product, (product) => product.suborderIds)
+  @ManyToOne(() => Product, (product) => product.subOrder)
   product: Product;
 
   @Column()

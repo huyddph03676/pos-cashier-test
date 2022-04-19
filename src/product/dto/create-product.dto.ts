@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { CreateDiscountDto } from 'src/discount/dto/create-discount.dto';
 
 export class CreateProductDto {
   @IsOptional()
@@ -24,8 +25,7 @@ export class CreateProductDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsNumber()
-  discount: number;
+  discount?: CreateDiscountDto;
 
   @ApiProperty()
   @IsString()

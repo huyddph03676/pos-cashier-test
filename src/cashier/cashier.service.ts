@@ -41,6 +41,9 @@ export class CashierService {
       select: ['cashierId', 'name'],
       take: limit,
       skip: skip,
+      where: {
+        isDeleted: false,
+      },
     });
 
     const data = {
@@ -56,7 +59,7 @@ export class CashierService {
 
   async findOne(cashierId: number) {
     const cashier = await this.cashierRepository.findOne({
-      where: { cashierId },
+      where: { cashierId, isDeleted: false },
       select: ['cashierId', 'name'],
     });
 
@@ -78,13 +81,11 @@ export class CashierService {
 
   async update(cashierId: number, updateCashierDto: UpdateCashierDto) {
     await this.findOne(cashierId);
-
     await this.cashierRepository.update({ cashierId }, updateCashierDto);
   }
 
   async remove(cashierId: number) {
     await this.findOne(cashierId);
-
-    await this.cashierRepository.delete({ cashierId });
+    await this.cashierRepository.update({ cashierId }, { isDeleted: true });
   }
 }

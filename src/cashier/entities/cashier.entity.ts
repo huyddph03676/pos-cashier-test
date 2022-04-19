@@ -12,6 +12,10 @@ export class Cashier {
   @Column()
   passcode: string;
 
+  @Column({ default: false, name: 'isDeleted' })
+  @Column({ select: false })
+  isDeleted: boolean;
+
   @OneToMany(() => Order, (order) => order.cashier)
   orderIds: Order[];
 

@@ -1,20 +1,23 @@
 import { Category } from 'src/category/entities/category.entity';
+import { Discount } from 'src/discount/entities/discount.entity';
 import { SubOrder } from 'src/order/entities/sub-order.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
   productId: number;
 
-  @Column({ unique: true })
+  @Column({ nullable: true })
   sku: string;
 
   @Column()
@@ -26,20 +29,23 @@ export class Product {
   @Column()
   price: number;
 
-  @Column({ nullable: true })
-  discount: number;
-
   @Column()
   image: string;
 
-  @ManyToOne(() => Category, (category) => category.productIds)
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: 'categoryId' })
   category: Category;
 
-  @Column()
-  categoryId: number;
-
   @OneToMany(() => SubOrder, (suborder) => suborder.product)
-  suborderIds: SubOrder[];
+  subOrder: SubOrder[];
+
+  @OneToOne(() => Discount)
+  @JoinColumn({ name: 'discountId' })
+  discount: Discount;
+
+  @Column({ default: false, name: 'isDeleted' })
+  @Column({ select: false })
+  isDeleted: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

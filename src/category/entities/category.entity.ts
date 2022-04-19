@@ -6,11 +6,15 @@ export class Category {
   @PrimaryGeneratedColumn()
   categoryId: number;
 
-  @Column({ unique: true })
+  @Column()
   name: string;
 
+  @Column({ default: false, name: 'isDeleted' })
+  @Column({ select: false })
+  isDeleted: boolean;
+
   @OneToMany(() => Product, (product) => product.category)
-  productIds: Product[];
+  products: Product[];
 
   @CreateDateColumn()
   createdAt: Date;

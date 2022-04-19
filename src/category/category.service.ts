@@ -22,6 +22,9 @@ export class CategoryService {
       select: ['categoryId', 'name'],
       take: limit,
       skip: skip,
+      where: {
+        isDeleted: false,
+      },
     });
 
     const data = {
@@ -37,7 +40,7 @@ export class CategoryService {
 
   async findOne(categoryId: number) {
     const category = await this.categoryRepository.findOne({
-      where: { categoryId },
+      where: { categoryId, isDeleted: false },
       select: ['categoryId', 'name'],
     });
 
@@ -53,6 +56,6 @@ export class CategoryService {
 
   async remove(categoryId: number) {
     await this.findOne(categoryId);
-    await this.categoryRepository.delete({ categoryId });
+    await this.categoryRepository.update({ categoryId }, { isDeleted: true });
   }
 }
