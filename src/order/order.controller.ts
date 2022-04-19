@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
 import { SubTotalDto } from './dto/subtotal.dto';
@@ -11,8 +12,10 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
+    const { user: cashier } = req;
+    return this.orderService.create(createOrderDto, cashier);
   }
 
   @Post('subtotal')
@@ -29,5 +32,4 @@ export class OrderController {
   findOne(@Param('orderId', ParseIntPipe) orderId: number) {
     return this.orderService.findOne(orderId);
   }
-
 }

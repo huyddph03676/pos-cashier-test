@@ -1,5 +1,5 @@
 export enum PAYMENT_TYPE {
-    'CASH',
-    'E-WALLET',
-    'EDC'
+    cash='CASH',
+    eWallet='E-WALLET',
+    edc='EDC'
 }
