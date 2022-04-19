@@ -12,6 +12,5 @@ export default registerAs(
     database: process.env.DB_NAME,
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     synchronize: Boolean(process.env.SYNCHRONIZE),
-    logging: true,
   }),
 );

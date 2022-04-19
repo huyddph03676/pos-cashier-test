@@ -4,10 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 import { SubOrder } from './sub-order.entity';
 
@@ -16,32 +17,28 @@ export class Order {
   @PrimaryGeneratedColumn()
   orderId: number;
 
-  @Column({ nullable: true })
+  @Column('decimal', { precision: 12, scale: 2, nullable: true })
   totalPrice: number;
 
-  @Column()
+  @Column('decimal', { precision: 12, scale: 2, nullable: true })
   totalPaid: number;
 
-  @Column({ nullable: true })
+  @Column('decimal', { precision: 12, scale: 2, nullable: true })
   totalReturn: number;
 
   @Column({ nullable: true })
   receiptId: string;
 
-  @ManyToOne(() => Cashier, (cashiers) => cashiers.orderIds)
+  @ManyToOne(() => Cashier, (cashiers) => cashiers.orders)
+  @JoinColumn({ name: 'cashierId' })
   cashier: Cashier;
 
-  @Column({ nullable: true })
-  cashierId: number;
-
-  @ManyToOne(() => Payment, (payment) => payment.orderIds)
+  @ManyToOne(() => Payment, (payment) => payment.orders)
+  @JoinColumn({ name: 'paymentId' })
   payment: Payment;
 
-  @Column()
-  paymentId: number;
-
   @OneToMany(() => SubOrder, (suborder) => suborder.order)
-  suborderIds: SubOrder[];
+  suborders: SubOrder[];
 
   @CreateDateColumn()
   createdAt: Date;

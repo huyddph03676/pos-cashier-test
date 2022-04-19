@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FilterPaymentDto } from './dto/filter-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -16,11 +17,13 @@ export class PaymentController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll(@Query() query: FilterPaymentDto) {
     return this.paymentService.findAll(query);
   }
 
   @Get(':paymentId')
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('paymentId', ParseIntPipe) paymentId: number) {
     return this.paymentService.findOne(paymentId);
   }

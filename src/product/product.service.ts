@@ -29,6 +29,7 @@ export class ProductService {
 
     productTem.discount = discount;
     productTem.category = category;
+    productTem.isDeleted = false;
 
     const createProduct = await this.productRepository.save(productTem);
 
@@ -42,6 +43,7 @@ export class ProductService {
 
     delete createProduct.category;
     delete createProduct.discount;
+    delete createProduct.isDeleted;
 
     return createProduct;
   }
@@ -100,9 +102,24 @@ export class ProductService {
     const product = await this.productRepository.findOne({
       where: {
         productId,
+        isDeleted: false,
       },
     });
     if (!product) throw new NotFoundException('Product not found');
+
+    return product;
+  }
+
+  async getDetailByIds(productIds: number[]) {
+    const product = await this.productRepository.findByIds(productIds, {
+      where: {
+        isDeleted: false,
+        category: {
+          isDeleted: false,
+        },
+      },
+      relations: ['discount', 'category'],
+    });
 
     return product;
   }

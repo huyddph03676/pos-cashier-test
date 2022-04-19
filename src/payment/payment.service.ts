@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PAYMENT_TYPE_ARRAY } from 'src/shared/constants';
 import { Repository } from 'typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { FilterPaymentDto } from './dto/filter-payment.dto';
@@ -11,6 +12,9 @@ export class PaymentService {
   constructor(@InjectRepository(Payment) private paymentRepository: Repository<Payment>) {}
 
   async create(createPaymentDto: CreatePaymentDto) {
+    if (PAYMENT_TYPE_ARRAY.indexOf(createPaymentDto.type) === -1) {
+      throw new NotFoundException('Type not match');
+    }
     const createCategory = await this.paymentRepository.save(createPaymentDto);
     return createCategory;
   }
@@ -26,6 +30,9 @@ export class PaymentService {
       select: ['paymentId', 'name', 'type', 'logo'],
       take: limit,
       skip: skip,
+      where: {
+        isDeleted: false,
+      },
     });
 
     const data = {
@@ -41,8 +48,8 @@ export class PaymentService {
 
   async findOne(paymentId: number) {
     const payment = await this.paymentRepository.findOne({
-      where: { paymentId },
-      select: ['paymentId', 'name', 'type', 'logo']
+      where: { paymentId, isDeleted: false },
+      select: ['paymentId', 'name', 'type', 'logo'],
     });
 
     if (!payment) throw new NotFoundException('Payment not found');
@@ -57,6 +64,6 @@ export class PaymentService {
 
   async remove(paymentId: number) {
     await this.findOne(paymentId);
-    await this.paymentRepository.delete({ paymentId });
+    await this.paymentRepository.update({ paymentId }, { isDeleted: true });
   }
 }

@@ -67,3 +67,7 @@ export function getStringFormat(number1: number, number2: number, type: string) 
     ? `Buy ${number1} only Rp. ${currencyFomat(2, number2)}`
     : `Discount ${number1}% Rp. ${number2}`;
 }
+
+export function getPriceAfterDiscountByPercent(price: number, result: number) {
+  return price - (price * result) / 100;
+}

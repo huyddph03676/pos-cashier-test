@@ -16,8 +16,12 @@ export class Payment {
   @Column({ nullable: true })
   logo: string;
 
+  @Column({ default: false, name: 'isDeleted' })
+  @Column({ select: false })
+  isDeleted: boolean;
+
   @OneToMany(() => Order, (order) => order.payment)
-  orderIds: Order[];
+  orders: Order[];
 
   @CreateDateColumn()
   createdAt: Date;

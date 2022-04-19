@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
 import { CreateProductDto } from 'src/product/dto/create-product.dto';
 import { UpdateProductDto } from 'src/product/dto/update-product.dto';
-import { getStringFormat } from 'src/shared/common';
+import { getPriceAfterDiscountByPercent, getStringFormat } from 'src/shared/common';
 import { DATE_FORMAT, DISCOUNT_TYPE, DISCOUNT_TYPE_ARRAY } from 'src/shared/constants';
 import { Repository } from 'typeorm';
 import { Discount } from './entities/discount.entity';
@@ -24,7 +24,8 @@ export class DiscountService {
     if (createDiscountDto.type === DISCOUNT_TYPE.BUY_N) {
       stringFormat = getStringFormat(createDiscountDto.qty, createDiscountDto.result, createDiscountDto.type);
     } else {
-      const priceDiscount = (productDto.price * createDiscountDto.result) / 100;
+      const priceDiscount = getPriceAfterDiscountByPercent(productDto.price, createDiscountDto.result);
+
       stringFormat = getStringFormat(createDiscountDto.result, priceDiscount, createDiscountDto.type);
     }
     const discount = this.discountService.create({
@@ -47,7 +48,7 @@ export class DiscountService {
     if (discount.type === DISCOUNT_TYPE.BUY_N) {
       stringFormat = getStringFormat(discount.qty, discount.result, discount.type);
     } else {
-      const priceDiscount = productDto.price - (productDto.price * discount.result) / 100;
+      const priceDiscount = getPriceAfterDiscountByPercent(productDto.price, discount.result);
       stringFormat = getStringFormat(discount.result, priceDiscount, discount.type);
     }
     await this.discountService.update({ discountId }, { stringFormat });

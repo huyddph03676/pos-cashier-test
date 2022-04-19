@@ -10,3 +10,5 @@ export enum DISCOUNT_TYPE {
 export const DISCOUNT_TYPE_ARRAY = ['BUY_N', 'PERCENT'];
 
 export const DATE_FORMAT = 'DD MMMM YYYY';
+
+export const PAYMENT_TYPE_ARRAY = ['CASH', 'E-WALLET', 'EDC'];

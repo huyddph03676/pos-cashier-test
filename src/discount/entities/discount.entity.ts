@@ -16,7 +16,7 @@ export class Discount {
   })
   type: DISCOUNT_TYPE;
 
-  @Column()
+  @Column('decimal', { precision: 12, scale: 2 })
   result: number;
 
   @Column({ type: 'datetime' })

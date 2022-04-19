@@ -17,7 +17,7 @@ export class Cashier {
   isDeleted: boolean;
 
   @OneToMany(() => Order, (order) => order.cashier)
-  orderIds: Order[];
+  orders: Order[];
 
   @CreateDateColumn()
   createdAt: Date;
