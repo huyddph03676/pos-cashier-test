@@ -1,7 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as _ from 'lodash';
+import { CashierService } from 'src/cashier/cashier.service';
 import { Cashier } from 'src/cashier/entities/cashier.entity';
+import { PaymentService } from 'src/payment/payment.service';
 import { Product } from 'src/product/entities/product.entity';
 import { ProductService } from 'src/product/product.service';
 import { generateOrderId, getPriceAfterDiscountByPercent } from 'src/shared/common';
@@ -23,10 +25,12 @@ export class OrderService {
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(SubOrder) private subOrderRepository: Repository<SubOrder>,
     private productServices: ProductService,
+    private paymentServices: PaymentService,
+    private cashierServices: CashierService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, cashier: Cashier) {
-    const { paymentId, products: productList } = createOrderDto;
+    const { paymentId, totalPaid, products: productList } = createOrderDto;
     const queryRunner = await getConnection().createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -35,13 +39,14 @@ export class OrderService {
       const subOrderCal = await this.createSubtotal(productList);
       const { products } = subOrderCal;
       const totalPrice = _.sumBy(products, (p: SubOrderTotalEntity) => p.totalNormalPrice);
-      const totalPaid = _.sumBy(products, (p: SubOrderTotalEntity) => p.totalFinalPrice);
+      const paymentRecord = await this.paymentServices.findOne(paymentId);
+      const cashierRecord = await this.cashierServices.findOne(cashier.cashierId);
       const orderDataInput = {
-        cashierId: cashier.cashierId,
-        paymentId,
+        cashier: cashierRecord,
+        payment: paymentRecord,
         totalPrice,
         totalPaid,
-        totalReturn: totalPrice - totalPaid,
+        totalReturn: totalPaid - totalPrice,
         receiptId: generateOrderId(6),
       };
       const orderDataCreate = this.orderRepository.create(orderDataInput);
@@ -54,6 +59,8 @@ export class OrderService {
           order: orderDataSave,
           product: product,
           qty: product.qty,
+          normalPrice: product.totalNormalPrice,
+          finalPrice: product.totalFinalPrice,
         });
         productDataInput.push(subOrderItem);
         queryRunner.manager.decrement(Product, { productId: product.productId }, 'stock', product.qty);
@@ -170,7 +177,29 @@ export class OrderService {
     return data;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findOne(orderId: number) {
+    const order = await this.orderRepository.findOne({
+      where: { orderId },
+      relations: ['cashier', 'payment', 'suborders', 'suborders.product'],
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    const {suborders} = order;
+    delete order.suborders;
+
+    const finalProducts = suborders.map(suborder => {
+      const {product} = suborder;
+      delete suborder.product;
+      return {
+        ...suborder,
+        ...product
+      }
+    })
+    
+    return {
+      order,
+      products: finalProducts
+    };
   }
 }

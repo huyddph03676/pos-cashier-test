@@ -24,5 +24,6 @@ import { Cashier } from './entities/cashier.entity';
   ],
   controllers: [CashierController],
   providers: [CashierService, LocalStrategy, JwtStrategy],
+  exports: [CashierService]
 })
 export class CashierModule {}
