@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as fs from 'fs';
 import * as _ from 'lodash';
 import { Cashier } from 'src/cashier/entities/cashier.entity';
 import { Product } from 'src/product/entities/product.entity';
@@ -172,5 +173,15 @@ export class OrderService {
 
   findOne(id: number) {
     return `This action returns a #${id} order`;
+  }
+
+  async download(id: number) {
+    fs.readFile(__dirname + '/../shared/template.invoice.html', 'utf8', function (err, html) {
+      console.log(err, html);
+    });
+    return {
+      fileName: '123',
+      fileContent: '<div>aaaa</div>',
+    };
   }
 }
