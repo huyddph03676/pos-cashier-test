@@ -37,6 +37,9 @@ export class Order {
   @JoinColumn({ name: 'paymentId' })
   payment: Payment;
 
+  @Column({ nullable: true })
+  isDownload: boolean;
+
   @OneToMany(() => SubOrder, (suborder) => suborder.order)
   suborders: SubOrder[];
 

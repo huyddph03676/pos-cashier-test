@@ -2,13 +2,14 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import { CashierService } from 'src/cashier/cashier.service';
 import { Cashier } from 'src/cashier/entities/cashier.entity';
 import { PaymentService } from 'src/payment/payment.service';
 import { Product } from 'src/product/entities/product.entity';
 import { ProductService } from 'src/product/product.service';
-import { generateOrderId, getPriceAfterDiscountByPercent } from 'src/shared/common';
-import { DISCOUNT_TYPE } from 'src/shared/constants';
+import { generateOrderId, getPriceAfterDiscountByPercent, replaceString } from 'src/shared/common';
+import { DATE_FORMAT, DISCOUNT_TYPE, PRODUCT_TEMPLATE } from 'src/shared/constants';
 import { getConnection, Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
@@ -186,31 +187,62 @@ export class OrderService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    const {suborders} = order;
+    const { suborders } = order;
     delete order.suborders;
 
-    const finalProducts = suborders.map(suborder => {
-      const {product} = suborder;
+    const finalProducts = suborders.map((suborder) => {
+      const { product } = suborder;
       delete suborder.product;
       return {
         ...suborder,
-        ...product
-      }
-    })
-    
+        ...product,
+      };
+    });
+
     return {
       order,
-      products: finalProducts
+      products: finalProducts,
     };
   }
 
   async download(id: number) {
-    fs.readFile(__dirname + '/../shared/template.invoice.html', 'utf8', function (err, html) {
-      console.log(err, html);
-    });
+    const { order, products } = await this.findOne(id);
+    if (order.isDownload) {
+      throw new BadRequestException("The order invoice don't download it twice");
+    }
+    let file = await fs.readFileSync(__dirname + '/../shared/template.invoice.html', 'utf8');
+    const productsReplace = this.generatorProducts(products);
+
+    file = replaceString(file, '[DATE_INVOICE]', moment(order.createdAt).format(DATE_FORMAT));
+    file = replaceString(file, '[INVOICE_ID]', order.receiptId);
+    file = replaceString(file, '[AMOUNT]', order.totalPaid.toString());
+    file = replaceString(file, '[TOTAL]', order.totalPaid.toString());
+    file = replaceString(file, '[PRODUCT_LIST]', productsReplace);
+
+    await this.orderRepository.update({ orderId: order.orderId }, { isDownload: true });
     return {
-      fileName: '123',
-      fileContent: '<div>aaaa</div>',
+      fileName: `${order.receiptId}.pdf`,
+      fileContent: file,
+    };
+  }
+
+  generatorProducts(products) {
+    let productsString = '';
+    products.forEach((product) => {
+      let productString = PRODUCT_TEMPLATE;
+      productString = replaceString(productString, '[PRODUCT_NAME]', product.name || '');
+      productString = replaceString(productString, '[PRODUCT_QTY]', product.qty || '');
+      productString = replaceString(productString, '[NORMAL_PRICE]', product.normalPrice || '');
+      productString = replaceString(productString, '[FINAL_PRICE]', product.finalPrice || '');
+      productsString += productString;
+    });
+    return productsString;
+  }
+
+  async checkDownload(id: number) {
+    const { order } = await this.findOne(id);
+    return {
+      isDownload: order.isDownload,
     };
   }
 }

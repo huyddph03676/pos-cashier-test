@@ -71,3 +71,7 @@ export function getStringFormat(number1: number, number2: number, type: string) 
 export function getPriceAfterDiscountByPercent(price: number, result: number) {
   return price - (price * result) / 100;
 }
+
+export function replaceString(input: string, search: string, value: string) {
+  return input.replace(search, value);
+}
