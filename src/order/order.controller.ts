@@ -21,6 +21,7 @@ export class OrderController {
   }
 
   @Post('subtotal')
+  @UseGuards(JwtAuthGuard)
   createSubtotal(@Body() createSubOrderDto: SubTotalDto[]) {
     return this.orderService.createSubtotal(createSubOrderDto);
   }
@@ -31,6 +32,7 @@ export class OrderController {
   }
 
   @Get(':orderId/download')
+  @UseGuards(JwtAuthGuard)
   async download(@Res() response: any, @Param('orderId', ParseIntPipe) orderId: number) {
     const options = { format: 'A4' };
 
@@ -43,11 +45,13 @@ export class OrderController {
   }
 
   @Get(':orderId/check-download')
+  @UseGuards(JwtAuthGuard)
   async checkdownload(@Param('orderId', ParseIntPipe) orderId: number) {
     return this.orderService.checkDownload(orderId);
   }
 
   @Get(':orderId')
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('orderId', ParseIntPipe) orderId: number) {
     return this.orderService.findOne(orderId);
   }
